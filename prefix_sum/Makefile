@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++11 
-TARGET = prefix_sum
-SRCS = prefix_sum.cpp
+TARGET = main
+SRCS = main.cpp
 
 all: $(TARGET)
 
