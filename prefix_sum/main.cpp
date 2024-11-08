@@ -25,9 +25,13 @@ int main()
 {
     for (const auto N: N_VALUES){
         
-        std::chrono::duration<double> total_time = std::chrono::duration<double>(0.0);
-        vec A(N, 1);
-        vec B(N);
+        std::chrono::duration<double,std::milli> total_time = std::chrono::duration<double>(0.0);
+        vec A(N);
+        vec B(N, 0);
+        
+        // Initializing A to avoid overflow.
+        for (int i = 0 ; i < N; i++) A[i] = std::rand() % (INT32_MAX/N);
+
 
         for (int i = 0; i < 5; i++)
         {
@@ -35,14 +39,14 @@ int main()
             prefixSum(A, B);
             auto stop = std::chrono::high_resolution_clock::now();
             
-            std::chrono::duration<double> time = stop - start;
+            std::chrono::duration<double, std::milli> time = stop - start;
             total_time += time;
         }
 
         total_time = total_time / 5;
 
-        std::cout << std::scientific;
-        std::cout << "Value: " << B[N-1] <<" | Average time: " << total_time.count() <<" seconds" << std::endl;
+        // std::cout << std::scientific;
+        std::cout << "Value: " << B[N-1] <<" | Average time: " << total_time.count() <<" ms" << std::endl;
     }
         
     return 0;
