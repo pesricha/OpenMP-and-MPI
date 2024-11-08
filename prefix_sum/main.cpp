@@ -46,7 +46,7 @@ int main()
         total_time = total_time / 5;
 
         // std::cout << std::scientific;
-        std::cout << "Value: " << B[N-1] <<" | Average time: " << total_time.count() <<" ms" << std::endl;
+        std::cout <<"N: " << N << " | Average time: " << total_time.count() <<" ms" << std::endl;
     }
         
     return 0;

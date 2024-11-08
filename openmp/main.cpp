@@ -88,7 +88,7 @@ int main(int argc, char** argv)
             total_time = total_time / 5;
 
             // std::cout << std::scientific;
-            std::cout << "Threads: " << thread_count << " |" << "Value: " << B[N-1] <<" | Average time: " << total_time.count() <<" ms" << std::endl;
+            std::cout << "Threads: " << thread_count << " | N: " << N << " | Average time: " << total_time.count() <<" ms" << std::endl;
         }
 
         std::cout << "=============================================================================" << std::endl;
