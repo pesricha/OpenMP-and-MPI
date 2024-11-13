@@ -6,8 +6,21 @@
 
 typedef std::vector<int> vec;
 
-const int N_VALUES[] = {10000, 20000, 30000};
 const int THREAD_VALUE[] = {2, 4, 8, 16, 32, 64};
+int N_VALUES_START = 1000000;
+int N_VALUES_END = 10000000;
+int N_VALUES_GAP = 1000000;
+vec N_VALUES;
+
+std::vector<int> createNValues() {
+    std::vector<int> values;
+    for (int i = N_VALUES_START; i <= N_VALUES_END; i += N_VALUES_GAP) {
+        values.push_back(i);
+    }
+    return values;
+}
+
+
 
 void prefixSumOMP(vec& A, vec& B, int n, int thread_count)
 {
@@ -59,14 +72,17 @@ void prefixSum(vec& A, vec& B)
     for (int i = 1; i < N; i++) B[i] = B[i - 1] + A[i];
 }
 
-int main(int argc, char** argv)
-{   
-    std::cout << "=============================================================================" << std::endl;
+int main() {
 
-    for (auto thread_count : THREAD_VALUE)
-    {
-        for (const auto N : N_VALUES)
-        {
+    N_VALUES = createNValues();
+
+    std::cout << "| Threads | N | Avg time (Seq) (ms) | Avg time (OMP) (ms) | Speedup |\n";
+    std::cout << "| ------- |---| ------------------- | ------------------- | ------- |\n";
+    
+
+
+    for (auto thread_count : THREAD_VALUE) {
+        for (const auto N : N_VALUES) {
             std::chrono::duration<double, std::milli> total_time_omp = std::chrono::duration<double>(0.0);
             std::chrono::duration<double, std::milli> total_time_seq = std::chrono::duration<double>(0.0);
             vec A(N);
@@ -77,44 +93,36 @@ int main(int argc, char** argv)
             for (int i = 0; i < N; i++) A[i] = std::rand() % (INT32_MAX / N);
 
             // Measure sequential time
-            for (int i = 0; i < 5; i++)
-            {
+            for (int i = 0; i < 30; i++) {
                 auto start_seq = std::chrono::high_resolution_clock::now();
                 prefixSum(A, B_seq);
                 auto stop_seq = std::chrono::high_resolution_clock::now();
 
                 total_time_seq += (stop_seq - start_seq);
             }
-            total_time_seq /= 5;
+            total_time_seq /= 30;
 
             // Measure parallel time
-            for (int i = 0; i < 5; i++)
-            {
+            for (int i = 0; i < 30; i++) {
                 auto start_omp = std::chrono::high_resolution_clock::now();
                 prefixSumOMP(A, B, N, thread_count);
                 auto stop_omp = std::chrono::high_resolution_clock::now();
 
                 total_time_omp += (stop_omp - start_omp);
             }
-            total_time_omp /= 5;
+            total_time_omp /= 30;
 
             // Calculate speedup
             double speedup = total_time_seq.count() / total_time_omp.count();
 
-            // Display results
-            std::cout << "Threads: " << thread_count << " | N: " << N
-                      << " | Avg time (Seq): " << total_time_seq.count() << " ms"
-                      << " | Avg time (OMP): " << total_time_omp.count() << " ms"
-                      << " | Speedup: " << speedup << std::endl;
-
-            // // Print last elements for verification
-            // std::cout << "Sequential Result (last element): " << B_seq.back() << std::endl;
-            // std::cout << "Parallel Result (last element):   " << B.back() << std::endl;
-            // std::cout << "-----------------------------------------------------------------------------" << std::endl;
+            // Display results in markdown table format
+            std::cout << "| " << thread_count 
+                      << " | " << N 
+                      << " | " << total_time_seq.count() 
+                      << " | " << total_time_omp.count() 
+                      << " | " << speedup 
+                      << " |\n";
         }
-
-        std::cout << "=============================================================================" << std::endl;
+    std::cout <<"| ------- |---| ------------------- | ------------------- | ------- |\n";
     }
-
-    return 0;
 }
