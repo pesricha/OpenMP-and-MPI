@@ -125,8 +125,9 @@ Experiment with array sizes of 10000, 20000 and 30000 integer elements. For each
 }
 
 
-
+\begin{tcolorbox} [width = \textwidth]
 \section*{1 Methodology}
+\end{tcolorbox}
 
     The implementation of \texttt{prefixSumOMP} computes the prefix sum of an input vector \( A \) and stores the result in vector \( B \) using multiple threads with OpenMP. The approach divides the input array \( A \) into subarrays for each thread, calculates local prefix sums, and then adjusts these with offsets derived from the global prefix sums of previous threads. Below is the step-by-step methodology:
 
@@ -250,7 +251,7 @@ The time complexity for the program is:
 
 \begin{large}
     \[
-    T(n,t) = O\left(\frac{2n}{t} + t\right)
+    T(n,t) = O\left(\frac{2n}{t} + t\right) + parallelization\ overheads
     \]
 \end{large}
 \begin{center}
@@ -261,19 +262,110 @@ The time complexity for the program is:
 
 
 \hrule
+\begin{tcolorbox} [width = \textwidth]
+\section*{2 Experiments}
+\end{tcolorbox}
 
-\section*{Experiments}
 
 The code was ran for different values of N (\#elements) and t (\#threads). To make sure the data is accurate, times were averaged over 30 runs. Below are the values of N and t.
 $$ T= [2, 4, 8, 16, 32, 64]; $$
 $$ N = [1000000, 2000000, 3000000, 4000000, 5000000, 6000000, 7000000, 8000000, 9000000, 10000000] $$
 
 The time is calculated in milliseconds and the calculated time does not include creation of the array. The results are discussed in the next section.
+
+\textbf{Note:} The given values in the question (N = 10000, 20000 and 30000) were not used because :
+
+\begin{enumerate}
+    \item They were two less in number. very less information could be extracted from the plots.
+    \item The values were too small to notice significant speedup trends.
+\end{enumerate}
+
 \\
 \hrule
 
-\section*{Results}
+\begin{tcolorbox} [width = \textwidth]
+\section*{3 Results}
+\end{tcolorbox}
+The results are captured in the following graphs. The observations (and their possible explanations according to me) are discussed in the next section.
 
+The execution times and speed ups in numbers are mentioned in \textsc{Appendix 1}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{images/omp_speedup_vs_t.png} % Adjust the width as needed
+    \caption{Speedups for different N values.}
+    \label{fig:parallel_vs-t}
+\end{figure}
+    
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{images/omp_speedup_vs_N.png} % Adjust the width as needed
+    \caption{Speedups for different num\_threads values.}
+    \label{fig:parallel_vs-t}
+\end{figure}
+
+\begin{tcolorbox}
+\section*{4 Observations}
+\end{tcolorbox}
+
+
+The observations are listed in \textit{Italics} and the observation in plaintext below the observation.
+\\
+
+\begin{enumerate}
+    \item \textit{\textbf{In Figure 3, for $num\_threads = 2$ we can see speeddowns across the board (around 0.9). }}: \\ This can be explained by the fact that the time complexity of the serial code is $O(n)$ and that for parallel with t = 2 is : $$O(\frac{2n}{2} + 2)) + parallelization\ overheads $$
+    $$ = O(n) + parallelization\ overheads$$
+
+    These parallelization overheads are the reason for slowdown. Therefore with our methodology, \textbf{\textit{we need at least two cores to almost approximately match the performance of the serial code.}}
+
+    \item \textit{\textbf{In Figure 2, There is a slowdown for num\_threads = 64 for every value of N (almost half of peak)}}: \\
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\textwidth]{images/LSCPU.png} % Adjust the width as needed
+        % \caption{Speedups for different num\_threads values.}
+        \label{fig:parallel_vs-t}
+    \end{figure}
+    This is because the CPU provided to us for our profiling purposes has 32 cores and can execute 1 thread per core. $$32*1 = 32 \text{ concurrent threads}$$ Assigning 64 threads means multiple threads must share each core, leading to \textbf{\textit{context switching overhead}}. and hence a slowdown.
+
+    \item \textbf{\textit{In Figure 2, for N = 1000000, we see a slowdown for num\_threads = 32}}: \\
+    One explanation to this is because the \underline{parallelization overhead} overtakes the time complexity for small N.
+
+    \item \textbf{\textit{From Figure 3, except for very large t values (32 and 64), we see that the speedup is almost in a constant range.}}
+
+    \item \textbf{\textit{The average speed up values double for every num\_thread doubling (till num\_threads = 32 because of obs 2 )}}: 
+
+    We can see from the both Figures 2 and 3, that the speedup doubled for every doubling in threads. This is consistent with our time complexity analysis as $t << n$ :
+
+    \[
+    T(n,t) = O\left(\frac{2n}{t} + t\right)
+    \]
+
+    \[
+    T(n,t) \approx O\left(\frac{2n}{t}\right) \text{ as } t << n
+    \]
+
+    \[
+    T(n,2t) \approx  O\left(\frac{2n}{2t}\right) =  O\left(\frac{n}{t}\right) = \frac{1}{2}O\left(\frac{2n}{t}\right) = \frac{1}{2} T(n,t)
+    \]
+
+    \[
+    \frac{1}{T(n,2t)} = 2 \frac{1}{T(n,t)}
+    \]
+
+    \[
+    \frac{T(n,1)}{T(n,2t)} = 2 \frac{T(n,1)}{T(n,t)}
+    \]
+    
+    \begin{center}
+    \begin{tcolorbox}[width=0.22\textwidth]
+     $S(n, 2t) = 2 {S(n,t)}$ 
+    \end{tcolorbox}
+    \end{center}
+
+\\
+
+\hrule
+\end{enumerate}
 
 \end{question}
 
@@ -286,14 +378,13 @@ For this program, generate a random integer array of size 1000000 (i.e., 1 milli
 
 Execute the program with different number of processes including 1 (sequential), 8, 16, 32 and 64. For each number of processes, execute with 20 different random input numbers for searching and in each case, measure the time taken for the search. Report the average time (across the 20 instances) taken for each number of processes. Plot the execution times and speedups for different number of processes. Ensure that you execute different processes on different cores.
 Prepare a report with the methodology, execution times, and speedup graphs.}
-    
+
+
 \end{question}
 
 
-\begin{question}{APPENDIX}
-\textbf{Parallel openmp prefix sum results}
+\begin{question}{APPENDIX 1: Parallel openmp prefix sum results}
 \lstinputlisting{openmp/results.txt}
-
 \end{question}
 
 \end{document}
