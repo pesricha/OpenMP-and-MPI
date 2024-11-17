@@ -121,7 +121,7 @@ Example, if A[] = \{5, 7, 3, 8, 2\}, B will be B[] = \{5, 12, 15, 23, 25\}
 
 Write a OpenMP parallel program for parallelizing the above prefix problem. Input array A and output array B will be shared by the OpenMP threads. Different threads will deal with different disjoint elements of B. 
 
-Experiment with array sizes of 10000, 20000 and 30000 integer elements. For each array, run your code with 2, 4, 8, 16, 32 and 64 threads. For a given array and given number of threads, run your code 5 times and obtain the average time across these 5 runs. Obtain speedups with respect to sequential execution. Write a report describing the methodology, experiments, results and observations. For results, give execution times, speedups as both numbers and graph plots.
+Experiment with array sizes of 10000, 20000 and 30000 integer elements. For each array, run your code with 2, 4, 8, 16, 32 and 64 threads. For a given array and given number of threads, run your code 5 times and obtain the average time across these 5 runs. Obtain speedups with respect to sequential execution. Write a report describing the methodology, experiments, results and observations. For results, give execution times, speedups as both numbers and grassph plots.
 }
 
 
@@ -380,15 +380,34 @@ Execute the program with different number of processes including 1 (sequential),
 Prepare a report with the methodology, execution times, and speedup graphs.}
 
 
+\begin{tcolorbox}
+    \section* {1 Methodology}
+\end{tcolorbox}
+
+\begin{tcolorbox}
+    \section* {2 Experiments}
+\end{tcolorbox}
+
+\begin{tcolorbox}
+    \section* {3 Results }
+\end{tcolorbox}
+
+\begin{tcolorbox}
+    \section* {4 Observations}
+\end{tcolorbox}
+
+
+
+
 \end{question}
 
 
 \begin{question}{APPENDIX 1: Parallel openmp prefix sum results}
-\lstinputlisting{openmp/results.}
+\lstinputlisting{openmp/results.txt}
 \end{question}
 
-\begin{question}{APPENDIX 2: Parallel MPI find\ _max results}
-    
+\begin{question}{APPENDIX 2: Parallel MPI find\_max results}
+\lstinputlisting{mpi/results.txt}
 \end{question}
 
 \end{document}
