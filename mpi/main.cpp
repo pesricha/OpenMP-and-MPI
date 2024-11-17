@@ -11,14 +11,9 @@
 #define MIN_ELEM 1
 #define NUM_TRIALS 20
 
-typedef std::vector<int> vec;
+typedef std::vector<int> vectorint;
+typedef std::vector<double> vectordouble;
 
-void randomizeArray(vec &A, int N) {
-    for (int i = 0; i < N; i++)
-        A[i] = std::rand() % (MAX_ELEM - MIN_ELEM + 1) + MIN_ELEM;
-}
-
-const int TARGET = 42;
 
 int main(int argc, char** argv) {
     MPI_Comm comm;
@@ -31,65 +26,76 @@ int main(int argc, char** argv) {
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
 
-    vec array(ARRAY_SIZE);
-    std::vector<double> times(NUM_TRIALS); 
+    int local_size = ARRAY_SIZE / size;
+    vectorint local_array(local_size);
+    vectordouble times(NUM_TRIALS, 0.0); 
+    vectorint gloabal_array(ARRAY_SIZE);
 
-    if (rank == 0) {
-        std::srand(static_cast<unsigned>(std::time(0)));
-        randomizeArray(array, ARRAY_SIZE);
+    if (rank == 0)
+    {
+        srand(time(nullptr));
     }
 
-    const int CHUNK_SIZE = ARRAY_SIZE / size;
-    vec local_array(CHUNK_SIZE);
+    for (int run = 0; run < NUM_TRIALS; run++)
+    {
+        if(rank == 0)
+        {
+            for (int i = 0; i < ARRAY_SIZE; i++)
+                gloabal_array[i] = rand() % (MAX_ELEM - MIN_ELEM + 1) + MIN_ELEM;
+        }
+    
+        MPI_Scatter(gloabal_array.data(), local_size, MPI_INT, local_array.data(), local_size, MPI_INT, 0, comm);
 
-    for (int trial = 0; trial < NUM_TRIALS; trial++) {
+        int target = 0;
+        if (rank == 0) target = rand() % (MAX_ELEM - MIN_ELEM + 1) + MIN_ELEM;
+        MPI_Bcast(&target, 1, MPI_INT, 0, comm);
 
-        // Start timing for the trial
         double start_time = MPI_Wtime();
 
-        // Scatter the array to all processes
-        MPI_Scatter(array.data(), CHUNK_SIZE, MPI_INT, local_array.data(), CHUNK_SIZE, MPI_INT, 0, comm);
-
-        int target_found = 0;
-        int received_index = -1;
-        MPI_Request r;
-        MPI_Irecv(&target_found, 1, MPI_INT, MPI_ANY_SOURCE, 69420, comm, &r);
-
-        if (rank == 0) {
-            MPI_Request rs;
-            MPI_Irecv(&received_index, 1, MPI_INT, MPI_ANY_SOURCE, 420, comm, &rs);
-        }
-
-        for (int i = 0; i < CHUNK_SIZE; i++) {
-            if (local_array[i] == TARGET || target_found) {
-                target_found = 1;
-                MPI_Bcast(&target_found, 1, MPI_INT, rank, comm);
-                int local_index_adjusted = i + CHUNK_SIZE * rank;
-                MPI_Send(&local_index_adjusted, 1, MPI_INT, 0, 420, comm);
+        int local_index = -1;
+        for (int i = 0 ; i < local_size; i++)
+        {
+            if (target == local_array[i])
+            {
+                local_index = i;
                 break;
             }
         }
 
-        MPI_Barrier(comm);
-        double end_time = MPI_Wtime();
-        double elapsed_time = (end_time - start_time) * 1000;  // time in ms
+        int global_index = (local_index != -1) ? rank * local_size + local_index : ARRAY_SIZE + 5;
 
-        // Rank 0 collects elapsed time
-        if (rank == 0) {
-            times[trial] = elapsed_time;
-            if (received_index != -1) {
-                std::cout << "Trial " << trial+1 << ": Element " << TARGET << " found at Index : " << received_index 
-                          << " with A[index] = " << array[received_index] << std::endl;
-            } else {
-                std::cout << "Trial " << trial+1 << ": Element " << TARGET << " not found" << std::endl;
-            }
-        }
+        int result;
+        MPI_Allreduce(&global_index, &result, 1, MPI_INT, MPI_MIN, comm);
+        
+        double end_time = MPI_Wtime();
+        times[run] = end_time - start_time;
+
+        // // or Debugging
+        // if (rank == 0) {
+        //     std::cout << "Run " << run + 1 << ": Searching " << ARRAY_SIZE 
+        //             << " elements (" << local_size << " per process) for target " << target << std::endl;
+        //     if (result < ARRAY_SIZE) {
+        //         std::cout << "  Element found at global index: " << result 
+        //                 << " Array[i]: " << gloabal_array[result] << std::endl;
+        //     } else {
+        //         std::cout << "  Element not found" << std::endl;
+        //     }
+        // }
     }
 
-    // Compute the average time for rank 0
+    // Calculate average execution time
+    double avg_time = 0.0;
+    for (double t : times) {
+        avg_time += t;
+    }
+    avg_time /= NUM_TRIALS;
+
+    // Process 0 gathers and prints results
     if (rank == 0) {
-        double average_time = std::accumulate(times.begin(), times.end(), 0.0) / NUM_TRIALS;
-        std::cout << "Average time taken with " << size << " processes: " << average_time << " ms" << std::endl;
+    
+    std::cout << "Average time over " << NUM_TRIALS << " runs: " 
+              << avg_time*1000 << " ms with " << size << " processes." 
+              << std::endl;
     }
 
     MPI_Finalize();

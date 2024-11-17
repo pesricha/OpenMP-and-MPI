@@ -1,8 +1,10 @@
 mpicxx main.cpp -o main
-Average time taken with 1 processes: 3.17704 ms
-Average time taken with 2 processes: 1.6915 ms
-Average time taken with 4 processes: 0.928947 ms
-Average time taken with 8 processes: 0.551584 ms
-Average time taken with 16 processes: 0.444631 ms
-Average time taken with 32 processes: 1.54174 ms
-Average time taken with 64 processes: 8.7862 ms
+| Processes | Avg time (ms)|
+|-----------|--------------|
+| 1 | 2.33499 |
+| 2 | 1.24272 |
+| 4 | 0.633456 |
+| 8 | 0.320808 |
+| 16 | 0.16852 |
+| 32 | 0.0927677 |
+| 64 | 4.96164 |
