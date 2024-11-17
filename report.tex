@@ -126,7 +126,7 @@ Experiment with array sizes of 10000, 20000 and 30000 integer elements. For each
 
 
 \begin{tcolorbox} [width = \textwidth]
-\section*{1 Methodology}
+\section{ Methodology}
 \end{tcolorbox}
 
     The implementation of \texttt{prefixSumOMP} computes the prefix sum of an input vector \( A \) and stores the result in vector \( B \) using multiple threads with OpenMP. The approach divides the input array \( A \) into subarrays for each thread, calculates local prefix sums, and then adjusts these with offsets derived from the global prefix sums of previous threads. Below is the step-by-step methodology:
@@ -196,7 +196,7 @@ Experiment with array sizes of 10000, 20000 and 30000 integer elements. For each
     \label{fig:your_label}
 \end{figure}
 
-\underline{\textbf{\large{1.1 Example with 4 thread:} }}
+\subsection{Example with 4 thread:}
 
 \textbf{Input Array \( A \) (size 16):}
 \[
@@ -245,7 +245,7 @@ B=[1,3,6,10,15,21,28,36,45,55,66,78,91,105,120,136].
 \]}
 \end{tcolorbox}
 
-\underline{\textbf{\large{1.2 Time Complexity}}}
+\subsection{1.2 Time Complexity}
 
 The time complexity for the program is: 
 
@@ -267,12 +267,14 @@ The time complexity for the program is:
 \end{tcolorbox}
 
 
-The code was ran for different values of N (\#elements) and t (\#threads). To make sure the data is accurate, times were averaged over 30 runs. Below are the values of N and t.
+\subsection{Experimental Parameters}
+The code was ran for different values of N (\#elements) and t (\#threads). Below are the values of N and t.
 $$ T= [2, 4, 8, 16, 32, 64]; $$
 $$ N = [1000000, 2000000, 3000000, 4000000, 5000000, 6000000, 7000000, 8000000, 9000000, 10000000] $$
 
-The time is calculated in milliseconds and the calculated time does not include creation of the array. The results are discussed in the next section.
+\subsection{Timing and Averaging}
 
+The time is calculated in milliseconds and the calculated time does not include creation of the array. To make sure the data is accurate, times were averaged over 30 runs. The results are discussed in the next section. We have used \texttt{std::chrono} for the same. \\
 \textbf{Note:} The given values in the question (N = 10000, 20000 and 30000) were not used because :
 
 \begin{enumerate}
@@ -286,7 +288,6 @@ The time is calculated in milliseconds and the calculated time does not include 
 \begin{tcolorbox} [width = \textwidth]
 \section*{3 Results}
 \end{tcolorbox}
-The results are captured in the following graphs. The observations (and their possible explanations according to me) are discussed in the next section.
 
 The execution times and speed ups in numbers are mentioned in \textsc{Appendix 1}.
 \begin{figure}[H]
@@ -306,7 +307,7 @@ The execution times and speed ups in numbers are mentioned in \textsc{Appendix 1
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{images/openmp_time_vs_N.png} % Adjust the width as needed
-    \caption{Time vs N plot for different values of num\_th}
+    \caption{Time vs N plot for different values of num\_thread values}
     \label{fig:parallel_vs-t}
 \end{figure}
 
@@ -386,24 +387,69 @@ Execute the program with different number of processes including 1 (sequential),
 Prepare a report with the methodology, execution times, and speedup graphs.}
 
 
+\setcounter{section}{0}
 \begin{tcolorbox}
-    \section* {1 Methodology}
+    \section{Methodology}
 \end{tcolorbox}
 
-\begin{tcolorbox}
-    \section* {2 Experiments}
-\end{tcolorbox}
+\subsection{Array Initialization and Distribution}
+The program begins by initializing the \texttt{MPI} environment and determining the rank and size of the MPI communicator. The total array size, \texttt{ARRAY\_SIZE}, is divided equally among all processes, resulting in a local array of size \texttt{local\_size} for each process. 
+\begin{itemize}
+    \item In the root process (rank 0), the global array is populated with random integers uniformly distributed between \texttt{MIN\_ELEM} and \texttt{MAX\_ELEM}.
+    \item The \texttt{MPI\_Scatter} function distributes chunks of the global array to all processes, assigning each process its corresponding local array.
+\end{itemize}
+
+\subsection{Target Element Selection and Broadcasting}
+In each trial:
+\begin{itemize}
+    \item The root process selects a random target element from the same range and broadcasts it to all processes using the \texttt{MPI\_Bcast} function.
+\end{itemize}
+
+\subsection{Local Search and Reduction}
+Each process performs the following steps:
+\begin{itemize}
+    \item Search for the target element in its local array. If found, the local index is recorded; otherwise, a sentinel value (\texttt{ARRAY\_SIZE + 5}) is used.
+    \item Convert the local index to a global index based on the process's rank.
+    \item Use the \texttt{MPI\_Allreduce} function with the \texttt{MPI\_MIN} operator to determine the smallest global index among all processes, representing the first occurrence of the target element.
+\end{itemize}
 
 \begin{tcolorbox}
-    \section* {3 Results }
+    \section{Experiments}
 \end{tcolorbox}
+
+\subsection{Experimental Parameters}
+The experiment uses the following parameters:
+\begin{itemize}
+    \item \texttt{ARRAY\_SIZE = 1,000,000}
+    \item \texttt{MIN\_ELEM = 1}
+    \item \texttt{MAX\_ELEM = 5,000,000}
+    \item \texttt{NUM\_TRIALS = 20}
+\end{itemize}
+
+\subsection{Timing and Averaging}
+The execution time for each trial is measured using \texttt{MPI\_Wtime} before and after the search. We are not including the array distribution part in time evaluation. The total execution time is averaged over \texttt{NUM\_TRIALS} trials. \\
+Not in the question it is mentioned to use the time taken by \texttt{process=1} as sequential and we have done the same.
 
 \begin{tcolorbox}
-    \section* {4 Observations}
+    \section{Results}
+\end{tcolorbox}
+The execution times and speed ups in numbers are mentioned in \textsc{Appendix 2}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{images/MPI_plot.png} % Adjust the width as needed
+    \caption{Time taken and speedup values vs num\_processes for N = 5,000,000}
+    \label{fig:MPIplot}
+\end{figure}
+
+\begin{tcolorbox}
+    \section{Observations}
 \end{tcolorbox}
 
-
-
+\begin{enumerate}
+    \item \textbf{\textit{The time taken gets halved (and speedup doubles) for each process doubling}}: \\
+    This is 
+\end{enumerate}
 
 \end{question}
 
