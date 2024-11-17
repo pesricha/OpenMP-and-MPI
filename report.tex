@@ -437,9 +437,16 @@ The execution times and speed ups in numbers are mentioned in \textsc{Appendix 2
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{images/MPI_plot.png} % Adjust the width as needed
-    \caption{Time taken and speedup values vs num\_processes for N = 5,000,000}
+    \includegraphics[width=1\textwidth]{images/MPI_plot_excluding_distribution.png} % Adjust the width as needed
+    \caption{Time taken and speedup values vs num\_processes for N = 5,000,000 not including array distribution time.}
     \label{fig:MPIplot}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{images/MPI_plot_including_distribution.png} % Adjust the width as needed
+    \caption{Time taken and speedup values vs num\_processes for N = 5,000,000 including array distribution time.}
+    \label{fig:MPIplot2}
 \end{figure}
 
 \begin{tcolorbox}
