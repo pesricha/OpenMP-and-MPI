@@ -233,8 +233,8 @@ A = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
 \textbf{Step 5: Adjust Local Prefix Sums}
 \begin{center}
     \item Adjust \( B_1 \): \( [15, 21, 28, 36] \)
-    \item Adjust \( B_2 \): \( [55, 65, 76, 88] \)
-    \item Adjust \( B_3 \): \( [101, 115, 130, 146] \)
+    \item Adjust \( B_2 \): \( [45, 55, 66, 78] \)
+    \item Adjust \( B_3 \): \( [91, 105, 120, 136] \)
 \end{center}
 
 
@@ -276,7 +276,7 @@ The time is calculated in milliseconds and the calculated time does not include 
 \textbf{Note:} The given values in the question (N = 10000, 20000 and 30000) were not used because :
 
 \begin{enumerate}
-    \item They were two less in number. very less information could be extracted from the plots.
+    \item They were too less in number very less information could be extracted from the plots.
     \item The values were too small to notice significant speedup trends.
 \end{enumerate}
 
@@ -308,7 +308,7 @@ The execution times and speed ups in numbers are mentioned in \textsc{Appendix 1
 \end{tcolorbox}
 
 
-The observations are listed in \textit{Italics} and the observation in plaintext below the observation.
+
 \\
 
 \begin{enumerate}
@@ -384,7 +384,11 @@ Prepare a report with the methodology, execution times, and speedup graphs.}
 
 
 \begin{question}{APPENDIX 1: Parallel openmp prefix sum results}
-\lstinputlisting{openmp/results.txt}
+\lstinputlisting{openmp/results.}
+\end{question}
+
+\begin{question}{APPENDIX 2: Parallel MPI find\ _max results}
+    
 \end{question}
 
 \end{document}
