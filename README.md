@@ -1,5 +1,3 @@
-# OpenMP-and-MPI-Prefix-Sum
-
 # Parallel Programming with OpenMP and MPI
 
 This project demonstrates two approaches to parallel programming: **OpenMP** for shared memory systems and **MPI** for distributed memory systems. The implementations focus on efficient parallel computations for prefix sum and target searching within an array.
